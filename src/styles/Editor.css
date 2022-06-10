@@ -168,6 +168,7 @@ canvas {
     height: 100%;
     position: absolute;
     z-index: 3;
+    overflow: hidden;
 }
 
 .editor-embed {

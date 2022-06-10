@@ -36,7 +36,6 @@ function FontWeightSelect(){
 }
 
 function FontColorSelect({ defaultColor, setDefaultColor }) {
-    console.log(defaultColor)
     return (
         <input value={defaultColor} onChange={(e) => {}}></input>
     )

@@ -22,11 +22,13 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
 
     const viewBoundsRef = React.useRef()
     const embedRef = React.useRef()
+
     const [GLRenderer, setGLRenderer] = React.useState()
     const [CSSRenderer, setCSSRenderer] = React.useState()
+    const camera = React.useRef(activeScene.oCamera);
+
     const [canvasBounds, setCanvasBounds] = React.useState()
     const [sceneThumb, setSceneThumb] = React.useState(activeScene.thumb)
-    const fontLoader = React.useRef()
     const fontSettings = useFontSettingsCache()
     
 
@@ -38,16 +40,16 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
             const width = webgl3Ref.current.clientWidth
             const height = webgl3Ref.current.clientHeight
             const aspect = width / height
-            activeScene.camera.top = 1 * aspect
-            activeScene.camera.bottom = -1 * aspect
-            activeScene.camera.updateProjectionMatrix()
+            camera.current.top = 1 * aspect
+            camera.current.bottom = -1 * aspect
+            camera.current.updateProjectionMatrix()
 
             GLRenderer.setSize(embedRef.current.clientWidth, embedRef.current.clientHeight)
             CSSRenderer.setSize(embedRef.current.clientWidth, embedRef.current.clientHeight)
 
             //activeScene.alpha.material.map.repeat.set(1, 1.45)
     
-            renderScene(GLRenderer, CSSRenderer, activeScene.scene, activeScene.camera)
+            renderScene(GLRenderer, CSSRenderer, activeScene, canvasBounds)
 
             if (!sceneThumb){
                 const thumb = GLRenderer.domElement.toDataURL('image/png');
@@ -56,7 +58,6 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
             }
 
             const onResize = () => {
-                console.log("resize")
                 setCanvasBounds({ width: viewBoundsRef.current.clientWidth, height: viewBoundsRef.current.clientHeight })
             }
     
@@ -66,11 +67,12 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
         }
         else if (webgl3Ref.current) {
 
-            const glRenderer = new THREE.WebGLRenderer({ canvas: webgl3Ref.current })
+            const glRenderer = new THREE.WebGLRenderer({ canvas: webgl3Ref.current, autoClear: true })
+            glRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+            glRenderer.autoClear = true
 
             const cssRenderer = new CSS3DRenderer({ element: css3Ref.current })
 
-            glRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
             setGLRenderer(glRenderer)
             setCSSRenderer(cssRenderer)
         }
@@ -106,8 +108,9 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
                 posX /* from -1 to 1 */,
                 posY /* from -1 to 1 */,
                 text: 'Lorem ipsum',
-                color: fontSettings.color,
+                color: fontSettings.fontColor,
                 fontFamily: fontSettings.font,
+                fontWeight: fontSettings.fontWeight,
                 fontSize: fontSettings.fontSize,
                 fontAlignment: fontSettings.fontAlignment
             }
