@@ -23,36 +23,39 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
     const viewBoundsRef = React.useRef()
     const embedRef = React.useRef()
 
-    const [GLRenderer, setGLRenderer] = React.useState()
-    const [CSSRenderer, setCSSRenderer] = React.useState()
+    const [glRenderer, setGLRenderer] = React.useState()
+    const [cssRenderer, setCSSRenderer] = React.useState()
     const camera = React.useRef(activeScene.oCamera);
 
     const [canvasBounds, setCanvasBounds] = React.useState()
     const [sceneThumb, setSceneThumb] = React.useState(activeScene.thumb)
-    const fontSettings = useFontSettingsCache()
-    
+    const fontSettings = useFontSettingsCache()    
 
     // Initialize new THREE WebGLRenderer
     // Update Camera Aspect
     // Render activeScene's THREE scene and THREE camera
     React.useEffect(() => {
-        if (GLRenderer){
+        if (glRenderer){
             const width = webgl3Ref.current.clientWidth
             const height = webgl3Ref.current.clientHeight
-            const aspect = width / height
-            camera.current.top = 1 * aspect
-            camera.current.bottom = -1 * aspect
+            // const aspect = width / height
+            // camera.current.top = 1 * aspect
+            // camera.current.bottom = -1 * aspect
+            camera.current.left = width/2
+            camera.current.right = -width/2
+            camera.current.top = height/2
+            camera.current.bottom = -height/2
             camera.current.updateProjectionMatrix()
 
-            GLRenderer.setSize(embedRef.current.clientWidth, embedRef.current.clientHeight)
-            CSSRenderer.setSize(embedRef.current.clientWidth, embedRef.current.clientHeight)
+            glRenderer.setSize(embedRef.current.clientWidth, embedRef.current.clientHeight)
+            cssRenderer.setSize(embedRef.current.clientWidth, embedRef.current.clientHeight)
 
             //activeScene.alpha.material.map.repeat.set(1, 1.45)
     
-            renderScene(GLRenderer, CSSRenderer, activeScene, canvasBounds)
+            renderScene(glRenderer, cssRenderer, activeScene, canvasBounds)
 
             if (!sceneThumb){
-                const thumb = GLRenderer.domElement.toDataURL('image/png');
+                const thumb = glRenderer.domElement.toDataURL('image/png');
                 activeScene.thumb = thumb
                 setSceneThumb(thumb)
             }
@@ -77,7 +80,7 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
             setCSSRenderer(cssRenderer)
         }
 
-    }, [GLRenderer, canvasBounds, activeScene])
+    }, [glRenderer, canvasBounds, activeScene])
 
 
     React.useEffect(() => {

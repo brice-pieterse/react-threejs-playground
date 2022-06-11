@@ -6,15 +6,19 @@ import clearSceneGarbage from './clearSceneGarbage';
 
 export default function renderScene(glRenderer, cssRenderer, threeScene, canvasBounds){
 
+    console.log(threeScene.oCamera)
+
     // TODO: only dispose of objects that have changed
 
     // dispose of all geometries, materials, textures, and renderLists
     const toRender = threeScene.scene
     clearSceneGarbage(glRenderer, toRender, GarbageTracker)
-
+    
     // re-render scene children
-    for (let c of toRender.children){
+    for (let c of threeScene.children){
+
         if (c.type === 'text'){
+            console.log(c)
             const text = document.createElement('p')
             text.style.textAlign = c.fontAlignment
             text.style.color = c.color
@@ -35,7 +39,6 @@ export default function renderScene(glRenderer, cssRenderer, threeScene, canvasB
             }
             // font weight
             text.style.fontWeight = c.fontWeight
-
             // font size needs to be dynamic such that it takes up % of canvas width
             text.style.opacity = 0
             text.style.fontSize = '12px'
@@ -51,8 +54,10 @@ export default function renderScene(glRenderer, cssRenderer, threeScene, canvasB
 
             // font will be perfect size now
             document.querySelector('.css3').removeChild(text)
+            text.style.opacity = 1
 
             const cssTextObject = new CSS3DObject(text);
+            console.log("CSS3D",cssTextObject)
 
             toRender.add(cssTextObject)
             GarbageTracker.addObject({type: 'Object3D', value: cssTextObject})
@@ -60,7 +65,7 @@ export default function renderScene(glRenderer, cssRenderer, threeScene, canvasB
     }
 
 
-    const torusGeometry = new THREE.TorusGeometry(0.4, 0.15, 30, 200, Math.PI * 2)
+    const torusGeometry = new THREE.TorusGeometry(canvasBounds.width/4, canvasBounds.width/50, 30, 200, Math.PI * 2)
     const torusMaterial = new THREE.MeshNormalMaterial()
     const torusMesh = new THREE.Mesh(torusGeometry, torusMaterial)
 
