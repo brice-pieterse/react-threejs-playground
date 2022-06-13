@@ -84,10 +84,6 @@ export default function Editor({ project }) {
     return (
         <div className='editor-main'>
 
-            {/* <div style={{width: '100vw', height: '100vh', position: 'absolute', top: 0, left: 0, backgroundColor: 'white', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', zIndex: 10}}>
-                <p style={{color: 'black', fontSize: '100px'}}>Hey</p>
-            </div> */}
-            
                 <EditorNav activeControl={activeControl} setActiveControl={setActiveControl}></EditorNav>
 
                 <FontSettingsProvider>

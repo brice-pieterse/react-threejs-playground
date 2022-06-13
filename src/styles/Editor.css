@@ -179,6 +179,10 @@ canvas {
     overflow: hidden;
 }
 
+.css3 p {
+    cursor: pointer;
+}
+
 .editor-embed {
     position: relative;
     border: 1px solid #3C4043;

@@ -4,7 +4,15 @@ import { CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 import GarbageTracker from '../GarbageTracker';
 import clearSceneGarbage from './clearSceneGarbage';
 
-export default function renderScene(glRenderer, cssRenderer, threeScene, width, height){
+export default function renderScene(glRenderer, cssRenderer, threeScene, width, syncActiveSceneChange){
+
+    let changeTimeout;
+
+    const updateChild = (property, value, child) => {
+        const updatedChild = {...child}
+        updatedChild[property] = value
+        syncActiveSceneChange('update child', updatedChild)
+    }
 
     // dispose of all geometries, materials, textures, and renderLists
     const toRender = threeScene.scene
@@ -15,6 +23,15 @@ export default function renderScene(glRenderer, cssRenderer, threeScene, width, 
 
         if (c.type === 'text'){
             const text = document.createElement('p')
+            // sync text updates
+            text.oninput = (e) => {
+                if (changeTimeout){
+                    window.clearTimeout(changeTimeout)
+                }
+                changeTimeout = setTimeout(() => {
+                    updateChild('text', e.target.innerText, c)
+                }, 1000)
+            }
             text.style.textAlign = c.fontAlignment
             text.style.color = c.color
             text.innerText = c.text
@@ -32,6 +49,7 @@ export default function renderScene(glRenderer, cssRenderer, threeScene, width, 
                     console.log("Error loading new font: ", err)
                 });
             }
+            text.setAttribute('contenteditable', '')
             // font weight
             text.style.fontWeight = c.fontWeight
             // font size needs to be dynamic such that it takes up % of canvas width

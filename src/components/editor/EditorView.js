@@ -38,7 +38,7 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
 
             resizeScene(width, height, activeScene.oCamera, glRenderer, cssRenderer)
 
-            renderScene(glRenderer, cssRenderer, activeScene, width, height)
+            renderScene(glRenderer, cssRenderer, activeScene, width, syncActiveSceneChange)
 
             const thumb = glRenderer.domElement.toDataURL('image/png');
 
@@ -57,7 +57,7 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
 
     // set up
     React.useEffect(() => {
-        const glRenderer = new THREE.WebGLRenderer({ canvas: webgl3Ref.current, autoClear: true })
+        const glRenderer = new THREE.WebGLRenderer({ canvas: webgl3Ref.current, autoClear: true, alpha: true })
         glRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         glRenderer.autoClear = true
 
@@ -88,12 +88,13 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
             // get click position on canvas and translate to position for THREE.Text
             const posX = e.clientX
             const posY = e.clientY
+            const index = activeScene.children.reduce((acc, c) => (c.index >= acc ? c.index + 1 : acc), 1)
             const child = {
                 type: 'text',
-                index: activeScene.children.reduce((acc, c) => (c.index >= acc ? c.index + 1 : acc), 1),
+                index: index,
                 posX /* from -1 to 1 */,
                 posY /* from -1 to 1 */,
-                text: 'Lorem ipsum',
+                text: `Lorem ipsum ${index}`,
                 color: fontSettings.fontColor,
                 fontFamily: fontSettings.font,
                 fontWeight: fontSettings.fontWeight,
