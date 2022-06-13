@@ -5,6 +5,7 @@ import { CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 // Utils
 import getCanvasEmbedStyle from '../../utils/getCanvasEmbedStyle'
 import renderScene from '../../utils/threeUtils/renderScene'
+import resizeScene from '../../utils/threeUtils/resizeScene';
 
 // Assets
 import alpha from '../../assets/alpha.jpg'
@@ -25,71 +26,53 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
 
     const [glRenderer, setGLRenderer] = React.useState()
     const [cssRenderer, setCSSRenderer] = React.useState()
-    const camera = React.useRef(activeScene.oCamera);
 
     const [canvasBounds, setCanvasBounds] = React.useState()
-    const [sceneThumb, setSceneThumb] = React.useState(activeScene.thumb)
-    const fontSettings = useFontSettingsCache()    
-
-    // Initialize new THREE WebGLRenderer
-    // Update Camera Aspect
-    // Render activeScene's THREE scene and THREE camera
+    const fontSettings = useFontSettingsCache()
+    
     React.useEffect(() => {
-        if (glRenderer){
+
+        if (glRenderer && activeScene.needsUpdate){
             const width = webgl3Ref.current.clientWidth
             const height = webgl3Ref.current.clientHeight
-            // const aspect = width / height
-            // camera.current.top = 1 * aspect
-            // camera.current.bottom = -1 * aspect
-            camera.current.left = width/2
-            camera.current.right = -width/2
-            camera.current.top = height/2
-            camera.current.bottom = -height/2
-            camera.current.updateProjectionMatrix()
 
-            glRenderer.setSize(embedRef.current.clientWidth, embedRef.current.clientHeight)
-            cssRenderer.setSize(embedRef.current.clientWidth, embedRef.current.clientHeight)
+            resizeScene(width, height, activeScene.oCamera, glRenderer, cssRenderer)
 
-            //activeScene.alpha.material.map.repeat.set(1, 1.45)
-    
-            renderScene(glRenderer, cssRenderer, activeScene, canvasBounds)
+            renderScene(glRenderer, cssRenderer, activeScene, width, height)
 
-            if (!sceneThumb){
-                const thumb = glRenderer.domElement.toDataURL('image/png');
-                activeScene.thumb = thumb
-                setSceneThumb(thumb)
-            }
+            const thumb = glRenderer.domElement.toDataURL('image/png');
 
-            const onResize = () => {
-                setCanvasBounds({ width: viewBoundsRef.current.clientWidth, height: viewBoundsRef.current.clientHeight })
-            }
-    
-            window.addEventListener('resize', onResize)
-    
-            return () => window.removeEventListener('resize', onResize)
-        }
-        else if (webgl3Ref.current) {
-
-            const glRenderer = new THREE.WebGLRenderer({ canvas: webgl3Ref.current, autoClear: true })
-            glRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-            glRenderer.autoClear = true
-
-            const cssRenderer = new CSS3DRenderer({ element: css3Ref.current })
-
-            setGLRenderer(glRenderer)
-            setCSSRenderer(cssRenderer)
+            syncActiveSceneChange('update', thumb)
         }
 
-    }, [glRenderer, canvasBounds, activeScene])
+    }, [glRenderer, activeScene])
 
 
-    React.useEffect(() => {
+    const resize = () => {
         const width = viewBoundsRef.current.clientWidth
         const height = viewBoundsRef.current.clientHeight
-
         setCanvasBounds({ width, height })
+        syncActiveSceneChange('toggle needsUpdate', true)
+    }
 
+    // set up
+    React.useEffect(() => {
+        const glRenderer = new THREE.WebGLRenderer({ canvas: webgl3Ref.current, autoClear: true })
+        glRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+        glRenderer.autoClear = true
+
+        const cssRenderer = new CSS3DRenderer({ element: css3Ref.current })
+
+        setGLRenderer(glRenderer)
+        setCSSRenderer(cssRenderer)
+        resize()
+
+        const ro = new ResizeObserver(e => resize())
+        ro.observe(viewBoundsRef.current)
+
+        return () => ro.disconnect()
     }, [])
+
 
     const EmbedSizingFromAspect = React.useMemo(() => canvasBounds ? getCanvasEmbedStyle(activeScene, canvasBounds) : null, [canvasBounds])
 
@@ -130,14 +113,15 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
 
             <div className='editor-projector' ref={viewBoundsRef}>
 
+                {!canvasBounds && <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}}>Loading</div>}
                 {/* Canvas size based on scene aspect ratio */}
-                {canvasBounds &&  <div className='editor-embed' ref={embedRef} style={EmbedSizingFromAspect} onClick={onSceneClick}>
+                <div className='editor-embed' ref={embedRef} style={EmbedSizingFromAspect} onClick={onSceneClick}>
                     <div className='checkerboard'>
                         <img src={alpha} className='editor-checkers'></img>
                     </div>
                     <canvas className='webgl3' ref={webgl3Ref} style={ActiveControlCursor}></canvas>
-                    <div className='css3' ref={css3Ref}></div>
-                </div>}
+                    <div className='css3' ref={css3Ref} style={ActiveControlCursor}></div>
+                </div>
 
             </div>
 
@@ -151,8 +135,8 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
             <button className='create-new-scene'><img src={add}/></button>
             {projectScenes.current.map(s => 
                 s === activeScene ?
-                    <img className='scene-thumb active' src={sceneThumb} key={s.index}></img> :
-                    <img className='scene-thumb' src={sceneThumb} key={s.index}></img>
+                    <img className='scene-thumb active' src={s.thumb} key={s.index}></img> :
+                    <img className='scene-thumb' src={s.thumb} key={s.index}></img>
             )}
 
         </div>

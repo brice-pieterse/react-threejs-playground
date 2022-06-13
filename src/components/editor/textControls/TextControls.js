@@ -12,7 +12,7 @@ import rightAlignment from './assets/align-right.svg'
 function FontSizeSelect({ updateFontSize, size }){
     return (
      <div className="slidecontainer">
-        <input type="range" min="1" max="100" value={(size * 1/2) * 100} className="slider" onChange={(e) => {
+        <input type="range" min="1" max="100" value={size * 100} className="slider" onChange={(e) => {
             updateFontSize(e.target.value)
         }}/>
     </div>
@@ -37,7 +37,7 @@ function FontWeightSelect(){
 
 function FontColorSelect({ defaultColor, setDefaultColor }) {
     return (
-        <input value={defaultColor} onChange={(e) => {}}></input>
+        <input style={{width: '65%'}} value={defaultColor} onChange={(e) => {}}></input>
     )
 }
 
@@ -46,7 +46,7 @@ export default function TextControls({ updateChild, activeChild }){
     const fontSettings = useFontSettingsCache()
 
     const updateFontSize = (value) => {
-        const updatedFontSize = (value * 1/100) * 2 // 2 is the orthographic camera width
+        const updatedFontSize = (value * 1/100)
         updateChild('fontSize', updatedFontSize)
     }
 

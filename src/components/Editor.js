@@ -54,12 +54,21 @@ export default function Editor({ project }) {
                     updatedActiveScene.children[i] = value
                 }
             }
+            updatedActiveScene.needsUpdate = true
             setActiveChild(value)
         }
         else if (action === 'create text child'){
             updatedActiveScene.children.push(value)
+            updatedActiveScene.needsUpdate = true
             setActiveChild(value)
             setActiveControl(null)
+        }
+        else if (action === 'update'){
+            updatedActiveScene.thumb = value
+            updatedActiveScene.needsUpdate = false
+        }
+        else if (action === 'toggle needsUpdate'){
+            updatedActiveScene.needsUpdate = true
         }
         // swap old old scene for updated scene
         const projectScenesCopy = [...projectScenes.current]
