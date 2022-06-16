@@ -61,7 +61,7 @@ export default function EditorControls({ activeScene, activeChild, setActiveChil
                     else if (c.type === 'text') {
                         return <div key={c.index} className={c.index === activeChild.index ? 'child active': 'child'}>
                             <img src={textChild}></img>
-                            <p>{c.text}</p>
+                            <p>{c.fontText}</p>
                         </div>
                     }
                 })}

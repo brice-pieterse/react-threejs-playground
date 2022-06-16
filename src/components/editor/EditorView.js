@@ -6,6 +6,8 @@ import { CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 import getCanvasEmbedStyle from '../../utils/getCanvasEmbedStyle'
 import renderScene from '../../utils/threeUtils/renderScene'
 import resizeScene from '../../utils/threeUtils/resizeScene';
+import createTextChild from '../../utils/editorUtils/createTextChild';
+import getCanvasClickCoords from '../../utils/editorUtils/getCanvasClickCoords';
 
 // Assets
 import alpha from '../../assets/alpha.jpg'
@@ -38,11 +40,11 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
 
             resizeScene(width, height, activeScene.oCamera, glRenderer, cssRenderer)
 
-            renderScene(glRenderer, cssRenderer, activeScene, width, syncActiveSceneChange)
+            renderScene(glRenderer, cssRenderer, activeScene, width, height, syncActiveSceneChange)
 
             const thumb = glRenderer.domElement.toDataURL('image/png');
 
-            syncActiveSceneChange('update', thumb)
+            syncActiveSceneChange('needsUpdate', thumb)
         }
 
     }, [glRenderer, activeScene])
@@ -86,22 +88,11 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
     const onSceneClick = (e) => {
         if (activeControl === 'text'){
             // get click position on canvas and translate to position for THREE.Text
-            const posX = e.clientX
-            const posY = e.clientY
+            const { posX, posY } = getCanvasClickCoords(e.clientX, e.clientY, embedRef.current.getBoundingClientRect())
+            console.log(posX, posY)
             const index = activeScene.children.reduce((acc, c) => (c.index >= acc ? c.index + 1 : acc), 1)
-            const child = {
-                type: 'text',
-                index: index,
-                posX /* from -1 to 1 */,
-                posY /* from -1 to 1 */,
-                text: `Lorem ipsum ${index}`,
-                color: fontSettings.fontColor,
-                fontFamily: fontSettings.font,
-                fontWeight: fontSettings.fontWeight,
-                fontSize: fontSettings.fontSize,
-                fontAlignment: fontSettings.fontAlignment
-            }
-            syncActiveSceneChange('create text child', child)
+            const child = createTextChild(fontSettings, index, posX, posY)
+            syncActiveSceneChange('create child', child)
         }
     }
 

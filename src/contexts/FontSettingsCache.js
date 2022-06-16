@@ -17,26 +17,38 @@ export function useFontSettingsCache(){
 function useProvideFontSettingsCache(){
     const [loading, setLoading] = React.useState(true)
     const [fontLibrary, setFontLibrary] = useState();
-    const [font, setFont] = useState()
+    const [fontFamily, setFontFamily] = useState()
     const [fontSize, setFontSize] = useState(0.25)
-    const [fontWeight, setFontWeight] = useState(400)
+    const [fontWeight, setFontWeight] = useState()
     const [fontAlignment, setFontAlignment] = useState('left')
     const [fontColor, setFontColor] = useState('#ffffff')
+    const [defaultLorem, setDefaultLorem] = useState('Lorem Ipsum')
 
     React.useEffect(() => {
         fetchFontLibrary().then(fonts => {
             setLoading(false);
             setFontLibrary(fonts)
-            setFont(fonts[0])
+            setFontFamily(fonts[0])
+            setFontWeight(Object.keys(fonts[0].variants)[0])
         })
-        
     }, [])
+
+    const updateDefaultFontFamily = (family) => {
+        console.log(family)
+        setFontFamily(family)
+        setFontWeight(Object.keys(family.variants)[0])
+
+        if (family.font === 'Chinese'){
+            setDefaultLorem('鉴于对人类家庭所有成员的固严')
+        }
+    }
 
     return {
         loading,
+        defaultLorem,
         fontLibrary,
-        font,
-        setFont,
+        fontFamily,
+        updateDefaultFontFamily,
         fontWeight,
         setFontWeight,
         fontSize,

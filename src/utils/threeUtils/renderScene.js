@@ -4,7 +4,7 @@ import { CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 import GarbageTracker from '../GarbageTracker';
 import clearSceneGarbage from './clearSceneGarbage';
 
-export default function renderScene(glRenderer, cssRenderer, threeScene, width, syncActiveSceneChange){
+export default function renderScene(glRenderer, cssRenderer, threeScene, width, height, syncActiveSceneChange){
 
     let changeTimeout;
 
@@ -29,25 +29,40 @@ export default function renderScene(glRenderer, cssRenderer, threeScene, width, 
                     window.clearTimeout(changeTimeout)
                 }
                 changeTimeout = setTimeout(() => {
-                    updateChild('text', e.target.innerText, c)
+                    updateChild('fontText', e.target.innerText, c)
                 }, 1000)
             }
+            text.style.position = 'absolute'
+
+            if (c.posX > 0){
+                text.style.left = `${Math.ceil(c.posX * width/2)}px`
+            }
+            else {
+                text.style.left = `${Math.ceil(c.posX * width/2)}px`
+            }
+
+            if (c.posY > 0){
+                text.style.top = `${Math.ceil(c.posY * height/2)}px`
+            }
+            else {
+                text.style.top = `${Math.ceil(c.posY * height/2)}px`
+            }
+
             text.style.textAlign = c.fontAlignment
-            text.style.color = c.color
-            text.innerText = c.text
+            text.style.color = c.fontColor
+            text.innerText = c.fontText
             // check if document.fonts already contains the font
             if (document.fonts.check(`12px ${c.fontFamily.font}`)){
                 text.style.fontFamily = c.fontFamily.font
             }
             else {
-                const newFont = new FontFace(c.fontFamily.font, `url(${c.fontFamily.file})`);
-
-                newFont.load().then(function(loaded_face) {
+                const newFont = new FontFace(`${c.fontFamily.font} ${c.fontWeight}`, `url(${c.fontFamily.variants[c.fontWeight]})`);
+                newFont.load()
+                .then((loaded_face) => {
                     document.fonts.add(loaded_face);
-                    text.style.fontFamily = c.fontFamily.font
-                }).catch(function(err) {
-                    console.log("Error loading new font: ", err)
-                });
+                    text.style.fontFamily = loaded_face.family
+                })
+
             }
             text.setAttribute('contenteditable', '')
             // font weight

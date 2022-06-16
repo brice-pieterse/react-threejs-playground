@@ -57,13 +57,13 @@ export default function Editor({ project }) {
             updatedActiveScene.needsUpdate = true
             setActiveChild(value)
         }
-        else if (action === 'create text child'){
+        else if (action === 'create child'){
             updatedActiveScene.children.push(value)
             updatedActiveScene.needsUpdate = true
             setActiveChild(value)
             setActiveControl(null)
         }
-        else if (action === 'update'){
+        else if (action === 'needsUpdate'){
             updatedActiveScene.thumb = value
             updatedActiveScene.needsUpdate = false
         }

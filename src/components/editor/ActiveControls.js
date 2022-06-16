@@ -27,7 +27,7 @@ export default function ActiveControls({ activeChild, syncActiveSceneChange}){
                 { activeChild.type == 'text' && (
                     <div className='alignment base-horizontal base-left base-wide'>
                         <img src={textChild} style={{marginRight: '12px'}}></img>
-                        <p>{activeChild.text}</p>
+                        <p>{activeChild.fontText}</p>
                     </div>
                 )}
 
