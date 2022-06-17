@@ -20,7 +20,7 @@ function useProvideFontSettingsCache(){
     const [fontFamily, setFontFamily] = useState()
     const [fontSize, setFontSize] = useState(0.25)
     const [fontWeight, setFontWeight] = useState()
-    const [fontAlignment, setFontAlignment] = useState('left')
+    const [fontAlignment, setFontAlignment] = useState('center')
     const [fontColor, setFontColor] = useState('#ffffff')
     const [defaultLorem, setDefaultLorem] = useState('Lorem Ipsum')
 

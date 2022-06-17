@@ -28,7 +28,9 @@ export default function createThreeScene(scenes){
                 scene: scene,
                 aspect: '1:1',
                 thumb: null,
-                children: [],
+                children: [
+                    {type: 'geometry', index: 1, name: 'Merlin Torus', geometry: 'torus', width: 0.25}
+                ],
                 // triggers first render
                 needsUpdate: true
             })

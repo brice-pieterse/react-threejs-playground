@@ -5,6 +5,7 @@ import pencil from '../../assets/icons/pencil.svg'
 import textChild from '../../assets/icons/textChild.svg'
 import shaderChild from '../../assets/icons/shaderChild.svg'
 import imageChild from '../../assets/icons/imageChild.svg'
+import torusChild from '../../assets/icons/geometries/torusChild.svg'
 
 
 export default function EditorControls({ activeScene, activeChild, setActiveChild }) {
@@ -47,21 +48,27 @@ export default function EditorControls({ activeScene, activeChild, setActiveChil
                 <div className='divider base-margin-top-8 base-margin-bottom-8'></div>
                 {activeScene.children && activeScene.children.map((c) => {
                     if (c.type == 'shader') {
-                        return <div key={c.index} className={c.index === activeChild.index ? 'child active': 'child'}>
-                            <img src={shaderChild}></img>
+                        return <div key={c.index} className={activeChild && c.index === activeChild.index ? 'child active': 'child'}>
+                            <img src={shaderChild} className='child-icon'></img>
                             <p>{`Shader ${c.name}`}</p>
                         </div>
                     }
                     else if (c.type === 'image') {
-                        return <div key={c.index} className={c.index === activeChild.index ? 'child active': 'child'}>
-                            <img src={imageChild}></img>
+                        return <div key={c.index} className={activeChild && c.index === activeChild.index ? 'child active': 'child'}>
+                            <img src={imageChild} className='child-icon'></img>
                             <p>{`Image ${c.index}`}</p>
                         </div>
                     }
                     else if (c.type === 'text') {
-                        return <div key={c.index} className={c.index === activeChild.index ? 'child active': 'child'}>
-                            <img src={textChild}></img>
+                        return <div key={c.index} className={activeChild && c.index === activeChild.index ? 'child active': 'child'}>
+                            <img src={textChild} className='child-icon'></img>
                             <p>{c.fontText}</p>
+                        </div>
+                    }
+                    else if (c.type === 'geometry'){
+                        return <div key={c.index} className={activeChild && c.index === activeChild.index ? 'child active': 'child'}>
+                            <img src={torusChild} className='child-icon'></img>
+                            <p>{c.name}</p>
                         </div>
                     }
                 })}

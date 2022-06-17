@@ -117,6 +117,31 @@ const FontAlignmentSelect = ({ alignment, updateAlignment }) => {
     )
 }
 
+function FontAxisSelect({ updateFontAxis, axis, pos }){
+
+    const updateTimer = React.useRef();
+
+    // used to avoid excessive rerendering
+    const timeUpdateFontAxis = (value) => {
+        if (updateTimer.current){
+            window.clearTimeout(updateTimer.current)
+        }
+        const newTimer = window.setTimeout(() => {
+            updateFontAxis(value, axis)
+        }, 250)
+
+        updateTimer.current = newTimer
+    }
+
+    return (
+     <div className="slidecontainer">
+        <input type="range" min="-100" max="100" defaultValue={pos * 100} className="slider" onChange={(e) => {
+            timeUpdateFontAxis(e.target.value)
+        }}/>
+    </div>
+    )
+}
+
 export default function TextControls({ updateChild, activeChild }){
 
     const fontSettings = useFontSettingsCache()
@@ -144,6 +169,12 @@ export default function TextControls({ updateChild, activeChild }){
 
     const updateFontAlignment = (value) => {
         updateChild('fontAlignment', value)
+        fontSettings.setFontAlignment(value) // updates default settings
+    }
+
+    const updateFontAxis = (value, axis) => {
+        const updatedAxisValue = (value * 1/100)
+        updateChild(axis, updatedAxisValue)
         fontSettings.setFontAlignment(value) // updates default settings
     }
 
@@ -177,5 +208,26 @@ export default function TextControls({ updateChild, activeChild }){
         </div>
         <div className='divider'></div>
         <FontAlignmentSelect alignment={activeChild.fontAlignment} updateAlignment={updateFontAlignment}/>
+        <div className='divider'></div>
+        <div className='text-control font-size'>
+            <p className='small light'>x</p>
+            <div className='content-block base-variable base-large base-right '>
+                <FontAxisSelect updateFontAxis={updateFontAxis} axis={'posX'} pos={activeChild.posX}/>
+            </div>
+        </div>
+        <div className='divider'></div>
+        <div className='text-control font-size'>
+            <p className='small light'>y</p>
+            <div className='content-block base-variable base-large base-right '>
+            <FontAxisSelect updateFontAxis={updateFontAxis} axis={'posY'} pos={activeChild.posY}/>
+            </div>
+        </div>
+        <div className='divider'></div>
+        <div className='text-control font-size'>
+            <p className='small light'>z</p>
+            <div className='content-block base-variable base-large base-right '>
+            <FontAxisSelect updateFontAxis={updateFontAxis} axis={'posZ'} pos={activeChild.posZ}/>
+            </div>
+        </div>
     </div>
 }
