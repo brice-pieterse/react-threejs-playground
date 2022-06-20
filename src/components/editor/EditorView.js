@@ -31,30 +31,35 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
 
     const [canvasBounds, setCanvasBounds] = React.useState()
     const fontSettings = useFontSettingsCache()
+
+    const [resized, setResized] = React.useState(false)
+
     
     React.useEffect(() => {
+        const width = webgl3Ref.current.clientWidth
+        const height = webgl3Ref.current.clientHeight
 
         if (glRenderer && activeScene.needsUpdate){
-            const width = webgl3Ref.current.clientWidth
-            const height = webgl3Ref.current.clientHeight
-
             resizeScene(width, height, activeScene.oCamera, glRenderer, cssRenderer)
-
             renderScene(glRenderer, cssRenderer, activeScene, width, height, syncActiveSceneChange)
 
             const thumb = glRenderer.domElement.toDataURL('image/png');
-
-            syncActiveSceneChange('needsUpdate', thumb)
+            syncActiveSceneChange('update thumb', thumb)
+        }
+        else if (glRenderer && resized){
+            resizeScene(width, height, activeScene.oCamera, glRenderer, cssRenderer)
+            renderScene(glRenderer, cssRenderer, activeScene, width, height, syncActiveSceneChange)
         }
 
-    }, [glRenderer, activeScene])
+    }, [glRenderer, activeScene, resized])
 
 
     const resize = () => {
         const width = viewBoundsRef.current.clientWidth
         const height = viewBoundsRef.current.clientHeight
         setCanvasBounds({ width, height })
-        syncActiveSceneChange('toggle needsUpdate', true)
+        setResized(true)
+        //syncActiveSceneChange('toggle needsUpdate', true)
     }
 
     // set up
@@ -67,9 +72,8 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
 
         setGLRenderer(glRenderer)
         setCSSRenderer(cssRenderer)
-        resize()
 
-        const ro = new ResizeObserver(e => resize())
+        const ro = new ResizeObserver(resize)
         ro.observe(viewBoundsRef.current)
 
         return () => ro.disconnect()
@@ -89,7 +93,6 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
         if (activeControl === 'text'){
             // get click position on canvas and translate to position for THREE.Text
             const { posX, posY } = getCanvasClickCoords(e.clientX, e.clientY, embedRef.current.getBoundingClientRect())
-            console.log(posX, posY)
             const index = activeScene.children.reduce((acc, c) => (c.index >= acc ? c.index + 1 : acc), 1)
             const child = createTextChild(fontSettings, index, posX, posY)
             syncActiveSceneChange('create child', child)
@@ -104,8 +107,7 @@ export default function EditorView({ projectScenes, activeScene, activeControl, 
             {children}
 
             <div className='editor-projector' ref={viewBoundsRef}>
-
-                {!canvasBounds && <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}}>Loading</div>}
+                
                 {/* Canvas size based on scene aspect ratio */}
                 <div className='editor-embed' ref={embedRef} style={EmbedSizingFromAspect} onClick={onSceneClick}>
                     <div className='checkerboard'>

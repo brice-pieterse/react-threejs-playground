@@ -46,7 +46,8 @@ export default function Editor({ project }) {
     }, [])
 
     const syncActiveSceneChange = (action, value) => {
-        const updatedActiveScene = {...activeScene}
+        console.log(action)
+        let updatedActiveScene = {...activeScene}
         if (action === 'update child'){
             // swap out old child for updated child
             for (let i = 0; i < updatedActiveScene.children.length; i++){
@@ -63,12 +64,21 @@ export default function Editor({ project }) {
             setActiveChild(value)
             setActiveControl(null)
         }
-        else if (action === 'needsUpdate'){
+        else if (action === 'delete child'){
+            updatedActiveScene.children = updatedActiveScene.children.filter(c => {
+                if (c.index != value.index){
+                    return true
+                }
+                else return false
+            })
+            updatedActiveScene.needsUpdate = true
+            if (activeChild.index === value.index){
+                setActiveChild(null)
+            }
+        }
+        else if (action === 'update thumb'){
             updatedActiveScene.thumb = value
             updatedActiveScene.needsUpdate = false
-        }
-        else if (action === 'toggle needsUpdate'){
-            updatedActiveScene.needsUpdate = true
         }
         // swap old old scene for updated scene
         const projectScenesCopy = [...projectScenes.current]
@@ -91,7 +101,7 @@ export default function Editor({ project }) {
                     <div className='editor-app'>
 
                         {/* Edit active scene */}
-                        {activeScene && <EditorControls activeScene={activeScene} setActiveChild={setActiveChild} activeChild={activeChild}></EditorControls>}
+                        {activeScene && <EditorControls activeScene={activeScene} setActiveChild={setActiveChild} activeChild={activeChild} syncActiveSceneChange={syncActiveSceneChange}></EditorControls>}
 
 
                         {/* View active scene, toggle scenes, create scene */}

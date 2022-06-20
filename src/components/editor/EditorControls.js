@@ -6,9 +6,18 @@ import textChild from '../../assets/icons/textChild.svg'
 import shaderChild from '../../assets/icons/shaderChild.svg'
 import imageChild from '../../assets/icons/imageChild.svg'
 import torusChild from '../../assets/icons/geometries/torusChild.svg'
+import trash from '../../assets/icons/trash.svg'
 
 
-export default function EditorControls({ activeScene, activeChild, setActiveChild }) {
+export default function EditorControls({ activeScene, activeChild, setActiveChild, syncActiveSceneChange }) {
+
+    const activateChild = (c) => {
+        setActiveChild(c)
+    }
+
+    const deleteChild = (c) => {
+        syncActiveSceneChange('delete child', c)
+    }
 
     return (
         <div className='editor-controls'>
@@ -46,29 +55,62 @@ export default function EditorControls({ activeScene, activeChild, setActiveChil
             <div className='alignment base-wide base-vertical base-left base-left-padding-40 base-right-padding-24 base-ends-padding-12'>
                 <p className='small light'>Children</p>
                 <div className='divider base-margin-top-8 base-margin-bottom-8'></div>
+
                 {activeScene.children && activeScene.children.map((c) => {
                     if (c.type == 'shader') {
-                        return <div key={c.index} className={activeChild && c.index === activeChild.index ? 'child active': 'child'}>
+                        return <div key={c.index} className='alignment base-horizontal base-left base-wide child-wrapper'>
+
+                        <div className={activeChild && c.index === activeChild.index ? 'child active': 'child'} onClick={() => activateChild(c)}>
                             <img src={shaderChild} className='child-icon'></img>
                             <p>{`Shader ${c.name}`}</p>
                         </div>
+
+                        <div className={activeChild && c.index === activeChild.index ? 'delete-child active': 'delete-child'} onClick={() => deleteChild(c)}>
+                            <img className='trash' src={trash}></img>
+                        </div>
+
+                        </div>
                     }
                     else if (c.type === 'image') {
-                        return <div key={c.index} className={activeChild && c.index === activeChild.index ? 'child active': 'child'}>
-                            <img src={imageChild} className='child-icon'></img>
-                            <p>{`Image ${c.index}`}</p>
+                        return <div key={c.index} className='alignment base-horizontal base-left base-wide child-wrapper'>
+
+                            <div className={activeChild && c.index === activeChild.index ? 'child active': 'child'} onClick={() => activateChild(c)}>
+                                <img src={imageChild} className='child-icon'></img>
+                                <p>{`Image ${c.index}`}</p>
+                            </div>
+            
+                            <div className={activeChild && c.index === activeChild.index ? 'delete-child active': 'delete-child'} onClick={() => deleteChild(c)}>
+                                <img className='trash' src={trash}></img>
+                            </div>
+
                         </div>
                     }
                     else if (c.type === 'text') {
-                        return <div key={c.index} className={activeChild && c.index === activeChild.index ? 'child active': 'child'}>
-                            <img src={textChild} className='child-icon'></img>
-                            <p>{c.fontText}</p>
+                        return <div key={c.index} className='alignment base-horizontal base-left base-wide child-wrapper'>
+
+                            <div className={activeChild && c.index === activeChild.index ? 'child active': 'child'} onClick={() => activateChild(c)}>
+                                <img src={textChild} className='child-icon'></img>
+                                <p>{c.fontText}</p>
+                            </div>
+
+                            <div className={activeChild && c.index === activeChild.index ? 'delete-child active': 'delete-child'} onClick={() => deleteChild(c)}>
+                                <img className='trash' src={trash}></img>
+                            </div>
+
                         </div>
                     }
                     else if (c.type === 'geometry'){
-                        return <div key={c.index} className={activeChild && c.index === activeChild.index ? 'child active': 'child'}>
+                        return <div key={c.index} className='alignment base-horizontal base-left base-wide child-wrapper'>
+
+                        <div className={activeChild && c.index === activeChild.index ? 'child active': 'child'} onClick={() => activateChild(c)}>
                             <img src={torusChild} className='child-icon'></img>
                             <p>{c.name}</p>
+                        </div>
+
+                        <div className={activeChild && c.index === activeChild.index ? 'delete-child active': 'delete-child'} onClick={() => deleteChild(c)}>
+                             <img className='trash' src={trash}></img>
+                        </div>
+
                         </div>
                     }
                 })}
